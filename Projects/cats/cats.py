@@ -60,7 +60,7 @@ def about(subject):
     # BEGIN PROBLEM 2
     def f(p):
         nonlocal subject
-        p = remove_punctuation(p).lower().split()
+        p = split(lower(remove_punctuation(p)))
         for s in subject:
             if s in p:
                 return True
@@ -96,7 +96,20 @@ def accuracy(typed, source):
     typed_words = split(typed)
     source_words = split(source)
     # BEGIN PROBLEM 3
-    "*** YOUR CODE HERE ***"
+    if len(typed_words) == 0 and len(source_words) == 0:
+        return 100.0
+    elif len(typed_words) == 0 and len(source_words) != 0:
+        return 0.0
+    elif len(typed_words) != 0 and len(source_words) == 0:
+        return 0.0
+    else:
+        correct_cnt = 0
+        for i, word in enumerate(typed_words):
+            if i >= len(source_words):
+                break
+            if word == source_words[i]:
+                correct_cnt += 1
+        return correct_cnt / len(typed_words) * 100
     # END PROBLEM 3
 
 
