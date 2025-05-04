@@ -58,7 +58,15 @@ def about(subject):
     assert all([lower(x) == x for x in subject]), "subjects should be lowercase."
 
     # BEGIN PROBLEM 2
-    "*** YOUR CODE HERE ***"
+    def f(p):
+        nonlocal subject
+        p = remove_punctuation(p).lower().split()
+        for s in subject:
+            if s in p:
+                return True
+        return False
+
+    return f
     # END PROBLEM 2
 
 
