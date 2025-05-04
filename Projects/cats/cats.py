@@ -190,7 +190,14 @@ def autocorrect(typed_word, word_list, diff_function, limit):
     'testing'
     """
     # BEGIN PROBLEM 5
-    "*** YOUR CODE HERE ***"
+    if typed_word in word_list:
+        return typed_word
+    similar_words = [
+        w for w in word_list if diff_function(typed_word, w, limit) <= limit
+    ]
+    if not similar_words:
+        return typed_word
+    return min(similar_words, key=lambda w: diff_function(typed_word, w, limit))
     # END PROBLEM 5
 
 
