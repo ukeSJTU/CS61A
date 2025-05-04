@@ -280,9 +280,112 @@ minimum_mewtations = count(minimum_mewtations)
 
 
 def final_diff(typed, source, limit):
-    """A diff function that takes in a string TYPED, a string SOURCE, and a number LIMIT.
-    If you implement this function, it will be used."""
-    assert False, "Remove this line to use your final_diff function."
+    """A diff function that computes the edit distance from TYPED to SOURCE.
+
+    This function uses a combination of:
+    1. Levenshtein distance (minimum number of single-character edits)
+    2. Character position weighting (errors at the beginning are more significant)
+    3. Common keyboard adjacency errors
+
+    Arguments:
+        typed: a starting word
+        source: a string that typed might be corrected to
+        limit: a number representing the maximum edit distance
+
+    Returns:
+        The edit distance from typed to source
+    """
+    # Early return if the difference in lengths exceeds the limit
+    if abs(len(typed) - len(source)) > limit:
+        return limit + 1
+
+    # Define keyboard adjacency for common typing errors
+    keyboard_adjacent = {
+        "q": ["w", "a"],
+        "w": ["q", "e", "s"],
+        "e": ["w", "r", "d"],
+        "r": ["e", "t", "f"],
+        "t": ["r", "y", "g"],
+        "y": ["t", "u", "h"],
+        "u": ["y", "i", "j"],
+        "i": ["u", "o", "k"],
+        "o": ["i", "p", "l"],
+        "p": ["o", "["],
+        "a": ["q", "s", "z"],
+        "s": ["a", "w", "d", "x"],
+        "d": ["s", "e", "f", "c"],
+        "f": ["d", "r", "g", "v"],
+        "g": ["f", "t", "h", "b"],
+        "h": ["g", "y", "j", "n"],
+        "j": ["h", "u", "k", "m"],
+        "k": ["j", "i", "l", ","],
+        "l": ["k", "o", ";", "."],
+        "z": ["a", "x"],
+        "x": ["z", "s", "c"],
+        "c": ["x", "d", "v"],
+        "v": ["c", "f", "b"],
+        "b": ["v", "g", "n"],
+        "n": ["b", "h", "m"],
+        "m": ["n", "j", ","],
+        ",": ["m", "k", "."],
+        ".": [",", "l", "/"],
+        "/": [".", ";"],
+        ";": ["l", "'"],
+        "'": [";"],
+    }
+
+    # Initialize the edit distance matrix
+    m, n = len(typed), len(source)
+
+    # If either string is empty, the distance is the length of the other
+    if m == 0:
+        return n
+    if n == 0:
+        return m
+
+    # Initialize matrix with dimensions (m+1) x (n+1)
+    matrix = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
+
+    # Fill the first row and column
+    for i in range(m + 1):
+        matrix[i][0] = i
+    for j in range(n + 1):
+        matrix[0][j] = j
+
+    # Fill the matrix
+    for i in range(1, m + 1):
+        # Early termination if all edits exceed limit
+        if min(matrix[i - 1]) > limit:
+            return limit + 1
+
+        for j in range(1, n + 1):
+            # Calculate costs for different operations
+            delete_cost = matrix[i - 1][j] + 1
+            insert_cost = matrix[i][j - 1] + 1
+
+            # Substitution cost depends on whether the characters are the same,
+            # adjacent on keyboard, or completely different
+            if typed[i - 1] == source[j - 1]:
+                substitute_cost = matrix[i - 1][j - 1]  # No change needed
+            elif source[j - 1] in keyboard_adjacent.get(typed[i - 1], []):
+                substitute_cost = (
+                    matrix[i - 1][j - 1] + 0.5
+                )  # Adjacent key error (lower penalty)
+            else:
+                substitute_cost = matrix[i - 1][j - 1] + 1  # Regular substitution
+
+            # Position weighting: errors at the beginning are more significant
+            position_factor = 1.0 - 0.1 * min(
+                i - 1, 2
+            )  # More weight for first 3 positions
+
+            # Choose the minimum cost operation
+            matrix[i][j] = (
+                min(delete_cost, insert_cost, substitute_cost) * position_factor
+            )
+
+    # Return the final edit distance, rounded to nearest integer
+    return round(matrix[m][n])
 
 
 FINAL_DIFF_LIMIT = 6  # REPLACE THIS WITH YOUR LIMIT
