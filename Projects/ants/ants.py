@@ -428,6 +428,15 @@ class Water(Place):
 
 # BEGIN Problem 11
 # The ScubaThrower class
+class ScubaThrower(ThrowerAnt):
+    """ScubaThrower is identical to ThrowerAnt but is waterproof and costs more food."""
+
+    name = "Scuba"
+    food_cost = 6
+    is_waterproof = True
+    implemented = True
+
+
 # END Problem 11
 
 
