@@ -120,7 +120,17 @@ class Ant(Insect):
             place.ant = self
         else:
             # BEGIN Problem 8b
-            assert place.ant is None, "Too many ants in {0}".format(place)
+            original_ant = place.ant
+            new_ant = self
+
+            if new_ant.can_contain(original_ant):
+                new_ant.store_ant(original_ant)
+                place.ant = new_ant
+            elif original_ant.can_contain(new_ant):
+                original_ant.store_ant(new_ant)
+                place.ant = original_ant  # This is redundant actually
+            else:
+                assert False, "Too many ants in {0}".format(place)
             # END Problem 8b
         Insect.add_to(self, place)
 
